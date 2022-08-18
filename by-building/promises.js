@@ -17,7 +17,11 @@ class Promise {
 
     const resolve = (value) => this._resolve(value);
     const reject = (value) => this._reject(value);
-    initializer(resolve, reject);
+    try {
+      initializer(resolve, reject);
+    } catch (e) {
+      this._reject(e);
+    }
   }
 
   _resolve(value) {
@@ -65,8 +69,12 @@ class Promise {
 
     if (typeof onFulfilled === 'function') {
       const wrappedOnFulfilled = (value) => {
-        const ret = onFulfilled(value);
-        returnedPromise._resolve(ret);
+        try {
+          const ret = onFulfilled(value);
+          returnedPromise._resolve(ret);
+        } catch (e) {
+          returnedPromise._reject(e);
+        }
       };
 
       switch (this._state) {
@@ -92,8 +100,12 @@ class Promise {
 
     if (typeof onRejected === 'function') {
       const wrappedOnRejected = (value) => {
-        const ret = onRejected(value);
-        returnedPromise._resolve(ret);
+        try {
+          const ret = onRejected(value);
+          returnedPromise._resolve(ret);
+        } catch (e) {
+          returnedPromise._reject(e);
+        }
       };
 
       switch (this._state) {
@@ -128,27 +140,26 @@ class Promise {
 
 // Test code.
 
-// A promise that eventually gets fulfilled with value 1.
-const promiseWith1 = new Promise((resolve) => {
-  setTimeout(() => {
-    console.log(new Date(), 'resolving initial promise with 1');
-    resolve(1);
-  }, 1000);
+// A promise that eventually gets rejected with an Error with 'initial message'.
+const rejectedPromise = new Promise((resolve, reject) => {
+  reject(new Error('initial message'));
+
+  throw new Error('ignored as this promise is already rejected');
 });
 
-promiseWith1
-  .then((prevValue) => {
-    // Return a promise that after 1 sec gets fulfilled with 3.
-    console.log(new Date(), 'received value:', prevValue);
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log(new Date(), 'resolving chained then');
-        resolve(prevValue + 2);
-      }, 1000);
-    });
-  })
-  .then((finalValue) => {
-    console.log(new Date(), 'final value:', finalValue);
-  });
-
-console.log(new Date(), 'after chaining then()');
+rejectedPromise
+  .then(
+    (prevValue) => { console.log('should never get called'); },
+    (prevThrown) => prevThrown.message,
+  )
+  .then(
+    (prevValue) => {
+      console.log('got', prevValue);
+      throw new Error('final message');
+    },
+    (prevThrown) => { console.log('should never be called'); },
+  )
+  .then(
+    (finalValue) => { console.log('should never get called'); },
+    (finalThrown) => { console.log('got', finalThrown.message); },
+  );
