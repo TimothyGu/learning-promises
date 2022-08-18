@@ -24,6 +24,18 @@ class Promise {
     }
   }
 
+  static resolve(value) {
+    return new Promise((resolve) => {
+      resolve(value);
+    });
+  }
+
+  static reject(value) {
+    return new Promise((resolve, reject) => {
+      reject(value);
+    });
+  }
+
   _resolve(value) {
     if (this._state === 'pending') {
       if (value instanceof Promise) {
@@ -146,30 +158,8 @@ class Promise {
 
     return returnedPromise;
   }
+
+  catch(onRejected) {
+    this.then(null, onRejected);
+  }
 }
-
-// Test code.
-
-// A promise that eventually gets rejected with an Error with 'initial message'.
-const rejectedPromise = new Promise((resolve, reject) => {
-  reject(new Error('initial message'));
-
-  throw new Error('ignored as this promise is already rejected');
-});
-
-rejectedPromise
-  .then(
-    (prevValue) => { console.log('should never get called'); },
-    (prevThrown) => prevThrown.message,
-  )
-  .then(
-    (prevValue) => {
-      console.log('got', prevValue);
-      throw new Error('final message');
-    },
-    (prevThrown) => { console.log('should never be called'); },
-  )
-  .then(
-    (finalValue) => { console.log('should never get called'); },
-    (finalThrown) => { console.log('got', finalThrown.message); },
-  );
