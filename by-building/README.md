@@ -53,7 +53,7 @@ Further reading:
 - [Releasing Zalgo](https://blog.izs.me/2013/08/designing-apis-for-asynchrony/), an article by Isaac Z. Schlueter, about why callbacks _should_ be called asynchronously
 - [`queueMicrotask`](https://developer.mozilla.org/en-US/docs/Web/API/queueMicrotask) on MDN Web Docs
 
-## Step 5: Resolving, not fulfulling [[code](step-5/promises.js) | [diff](https://github.com/TimothyGu/learning-promises/compare/by-building-tag/step-4...by-building-tag/step-5)]
+## Step 5: Resolving, not fulfilling [[code](step-5/promises.js) | [diff](https://github.com/TimothyGu/learning-promises/compare/by-building-tag/step-4...by-building-tag/step-5)]
 
 So far, we have missed a crucial part of how promises work. Consider the following code:
 
@@ -76,7 +76,7 @@ With our implementation so far, the value that gets printed is `promiseWith1`. H
 
 It turns out that `resolve` actually has special handling when called with a promise. In particular, resolving with another promise "adopts" that promise's state. In other words, when the other promise gets fulfilled, this promise should get fulfilled as well; ditto for rejected.
 
-> From a terminology standpoint, this illustrates the difference between "resolve" and "fulfill". "Resolving" has the special handling for promises, while "fulfulling" does not. To "fulfill" with value _v_ means to actually populate the promise with _v_.
+> From a terminology standpoint, this illustrates the difference between "resolve" and "fulfill". "Resolving" has the special handling for promises, while "fulfilling" does not. To "fulfill" with value _v_ means to actually populate the promise with _v_.
 
 We add support for this by changing the `_resolve` function. Note: no modifications are made to `_reject`, since rejecting never has special handling for promises.
 
