@@ -50,6 +50,9 @@ class Promise {
             onFulfilled(value);
           });
         }
+
+        this._onFulfilled = null;
+        this._onRejected = null;
       }
     }
   }
@@ -65,6 +68,9 @@ class Promise {
           onRejected(value);
         });
       }
+
+      this._onFulfilled = null;
+      this._onRejected = null;
     }
   }
 
@@ -144,14 +150,26 @@ class Promise {
 
 // Test code.
 
-let promiseResolve;
-const promise = new Promise((resolve) => {
-  promiseResolve = resolve;
+// A promise that eventually gets rejected with an Error with 'initial message'.
+const rejectedPromise = new Promise((resolve, reject) => {
+  reject(new Error('initial message'));
+
+  throw new Error('ignored as this promise is already rejected');
 });
 
-promise.then(
-  (value) => { console.log('fulfilled with', value); },
-  (value) => { console.log('rejected with', value); },
-);
-
-promiseResolve(promise);
+rejectedPromise
+  .then(
+    (prevValue) => { console.log('should never get called'); },
+    (prevThrown) => prevThrown.message,
+  )
+  .then(
+    (prevValue) => {
+      console.log('got', prevValue);
+      throw new Error('final message');
+    },
+    (prevThrown) => { console.log('should never be called'); },
+  )
+  .then(
+    (finalValue) => { console.log('should never get called'); },
+    (finalThrown) => { console.log('got', finalThrown.message); },
+  );
