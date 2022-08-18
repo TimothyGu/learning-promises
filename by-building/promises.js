@@ -30,10 +30,14 @@ class Promise {
         // Special handling for resolving with a promise.
         const otherPromise = value;
 
-        otherPromise.then(
-          (value) => this._resolve(value),
-          (value) => this._reject(value),
-        );
+        if (this === otherPromise) {
+          this._reject(new TypeError('Chaining cycle detected'));
+        } else {
+          otherPromise.then(
+            (value) => this._resolve(value),
+            (value) => this._reject(value),
+          );
+        }
       } else {
         // Not a promise; fulfill with the value.
         this._state = 'fulfilled';
@@ -140,26 +144,14 @@ class Promise {
 
 // Test code.
 
-// A promise that eventually gets rejected with an Error with 'initial message'.
-const rejectedPromise = new Promise((resolve, reject) => {
-  reject(new Error('initial message'));
-
-  throw new Error('ignored as this promise is already rejected');
+let promiseResolve;
+const promise = new Promise((resolve) => {
+  promiseResolve = resolve;
 });
 
-rejectedPromise
-  .then(
-    (prevValue) => { console.log('should never get called'); },
-    (prevThrown) => prevThrown.message,
-  )
-  .then(
-    (prevValue) => {
-      console.log('got', prevValue);
-      throw new Error('final message');
-    },
-    (prevThrown) => { console.log('should never be called'); },
-  )
-  .then(
-    (finalValue) => { console.log('should never get called'); },
-    (finalThrown) => { console.log('got', finalThrown.message); },
-  );
+promise.then(
+  (value) => { console.log('fulfilled with', value); },
+  (value) => { console.log('rejected with', value); },
+);
+
+promiseResolve(promise);
