@@ -61,18 +61,25 @@ class Promise {
   }
 
   then(onFulfilled, onRejected) {
+    const returnedPromise = new Promise(() => {});
+
     if (typeof onFulfilled === 'function') {
+      const wrappedOnFulfilled = (value) => {
+        const ret = onFulfilled(value);
+        returnedPromise._resolve(ret);
+      };
+
       switch (this._state) {
         case 'pending':
           // If the promise is still pending, then sign up to be notified.
-          this._onFulfilled.push(onFulfilled);
+          this._onFulfilled.push(wrappedOnFulfilled);
           break;
 
         case 'fulfilled': {
           // If the promise is already fulfilled, call the callback directly.
           const value = this._value;
           _callAsynchronously(() => {
-            onFulfilled(value);
+            wrappedOnFulfilled(value);
           });
           break;
         }
@@ -84,17 +91,22 @@ class Promise {
     }
 
     if (typeof onRejected === 'function') {
+      const wrappedOnRejected = (value) => {
+        const ret = onRejected(value);
+        returnedPromise._resolve(ret);
+      };
+
       switch (this._state) {
         case 'pending':
           // If the promise is still pending, then sign up to be notified.
-          this._onRejected.push(onRejected);
+          this._onRejected.push(wrappedOnRejected);
           break;
 
         case 'rejected': {
           // If the promise is already rejected, call the callback directly.
           const value = this._value;
           _callAsynchronously(() => {
-            onRejected(value);
+            wrappedOnRejected(value);
           });
           break;
         }
@@ -104,20 +116,39 @@ class Promise {
           break;
       }
     }
+
+    // If neither callback is provided, the new promise should forward the current promise.
+    if (typeof onFulfilled !== 'function' && typeof onRejected !== 'function') {
+      returnedPromise._resolve(this);
+    }
+
+    return returnedPromise;
   }
 }
 
 // Test code.
 
-// A promise that is fulfilled with value 1.
-const promiseWith1 = new Promise((resolve) => { resolve(1); });
-
-const newPromise = new Promise((resolve) => {
-  // !!! We call resolve with another promise.
-  resolve(promiseWith1);
+// A promise that eventually gets fulfilled with value 1.
+const promiseWith1 = new Promise((resolve) => {
+  setTimeout(() => {
+    console.log(new Date(), 'resolving initial promise with 1');
+    resolve(1);
+  }, 1000);
 });
 
-// Let's see what value we get in the new promise.
-newPromise.then((value) => {
-  console.log(value);
-});
+promiseWith1
+  .then((prevValue) => {
+    // Return a promise that after 1 sec gets fulfilled with 3.
+    console.log(new Date(), 'received value:', prevValue);
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log(new Date(), 'resolving chained then');
+        resolve(prevValue + 2);
+      }, 1000);
+    });
+  })
+  .then((finalValue) => {
+    console.log(new Date(), 'final value:', finalValue);
+  });
+
+console.log(new Date(), 'after chaining then()');
