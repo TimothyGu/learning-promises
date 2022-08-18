@@ -28,6 +28,12 @@ steptitles=(
   'Step 8: Shortcuts'
 )
 
+if [[ $(basename $PWD) == by-building || ! -d by-building ]]
+then
+  echo 'You must be in learning-promises/ for this script to work' >&2
+  exit 1
+fi
+
 tmpdir=$(mktemp -d)
 
 for step in "${steps[@]}"
