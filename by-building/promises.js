@@ -22,15 +22,26 @@ class Promise {
 
   _resolve(value) {
     if (this._state === 'pending') {
-      this._state = 'fulfilled';
-      this._value = value;
+      if (value instanceof Promise) {
+        // Special handling for resolving with a promise.
+        const otherPromise = value;
 
-      for (const onFulfilled of this._onFulfilled) {
-        // Do not call onFulfilled right away.
-        // We need to guarantee `onFulfilled` is called "asynchronously".
-        _callAsynchronously(() => {
-          onFulfilled(value);
-        });
+        otherPromise.then(
+          (value) => this._resolve(value),
+          (value) => this._reject(value),
+        );
+      } else {
+        // Not a promise; fulfill with the value.
+        this._state = 'fulfilled';
+        this._value = value;
+
+        for (const onFulfilled of this._onFulfilled) {
+          // Do not call onFulfilled right away.
+          // We need to guarantee `onFulfilled` is called "asynchronously".
+          _callAsynchronously(() => {
+            onFulfilled(value);
+          });
+        }
       }
     }
   }
@@ -98,20 +109,15 @@ class Promise {
 
 // Test code.
 
-const prom = new Promise((resolve, reject) => {
-  console.log(new Date(), 'Creating new promise');
+// A promise that is fulfilled with value 1.
+const promiseWith1 = new Promise((resolve) => { resolve(1); });
 
-  // Resolve the promise after 1 sec (1000 ms).
-  setTimeout(() => {
-    console.log(new Date(), 'Resolving the promise');
-    resolve(1);
-  }, 1000);
+const newPromise = new Promise((resolve) => {
+  // !!! We call resolve with another promise.
+  resolve(promiseWith1);
 });
 
-prom.then((value) => {
-  console.log(new Date(), 'First onFulfilled:', value);
-});
-
-prom.then((value) => {
-  console.log(new Date(), 'Second onFulfilled:', value);
+// Let's see what value we get in the new promise.
+newPromise.then((value) => {
+  console.log(value);
 });
