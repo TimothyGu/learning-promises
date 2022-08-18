@@ -15,8 +15,8 @@ class Promise {
     this._onFulfilled = [];
     this._onRejected = [];
 
-    const resolve = value => this._resolve(value);
-    const reject = value => this._reject(value);
+    const resolve = (value) => this._resolve(value);
+    const reject = (value) => this._reject(value);
     initializer(resolve, reject);
   }
 
@@ -27,10 +27,9 @@ class Promise {
         const otherPromise = value;
 
         otherPromise.then(
-          value => this._resolve(value),
-          value => this._reject(value)
+          (value) => this._resolve(value),
+          (value) => this._reject(value),
         );
-
       } else {
         // Not a promise; fulfill with the value.
         this._state = 'fulfilled';
@@ -65,7 +64,7 @@ class Promise {
     const returnedPromise = new Promise(() => {});
 
     if (typeof onFulfilled === 'function') {
-      const wrappedOnFulfilled = value => {
+      const wrappedOnFulfilled = (value) => {
         const ret = onFulfilled(value);
         returnedPromise._resolve(ret);
       };
@@ -76,13 +75,14 @@ class Promise {
           this._onFulfilled.push(wrappedOnFulfilled);
           break;
 
-        case 'fulfilled':
+        case 'fulfilled': {
           // If the promise is already fulfilled, call the callback directly.
           const value = this._value;
           _callAsynchronously(() => {
             wrappedOnFulfilled(value);
           });
           break;
+        }
 
         case 'rejected':
           // Do nothing.
@@ -91,7 +91,7 @@ class Promise {
     }
 
     if (typeof onRejected === 'function') {
-      const wrappedOnRejected = value => {
+      const wrappedOnRejected = (value) => {
         const ret = onRejected(value);
         returnedPromise._resolve(ret);
       };
@@ -102,13 +102,14 @@ class Promise {
           this._onRejected.push(wrappedOnRejected);
           break;
 
-        case 'rejected':
+        case 'rejected': {
           // If the promise is already rejected, call the callback directly.
           const value = this._value;
           _callAsynchronously(() => {
             wrappedOnRejected(value);
           });
           break;
+        }
 
         case 'fulfilled':
           // Do nothing.
@@ -136,7 +137,7 @@ const promiseWith1 = new Promise((resolve) => {
 });
 
 promiseWith1
-  .then(prevValue => {
+  .then((prevValue) => {
     // Return a promise that after 1 sec gets fulfilled with 3.
     console.log(new Date(), 'received value:', prevValue);
     return new Promise((resolve) => {
@@ -146,7 +147,7 @@ promiseWith1
       }, 1000);
     });
   })
-  .then(finalValue => {
+  .then((finalValue) => {
     console.log(new Date(), 'final value:', finalValue);
   });
 

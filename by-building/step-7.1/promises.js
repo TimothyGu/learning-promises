@@ -15,8 +15,8 @@ class Promise {
     this._onFulfilled = [];
     this._onRejected = [];
 
-    const resolve = value => this._resolve(value);
-    const reject = value => this._reject(value);
+    const resolve = (value) => this._resolve(value);
+    const reject = (value) => this._reject(value);
     try {
       initializer(resolve, reject);
     } catch (e) {
@@ -31,10 +31,9 @@ class Promise {
         const otherPromise = value;
 
         otherPromise.then(
-          value => this._resolve(value),
-          value => this._reject(value)
+          (value) => this._resolve(value),
+          (value) => this._reject(value),
         );
-
       } else {
         // Not a promise; fulfill with the value.
         this._state = 'fulfilled';
@@ -69,7 +68,7 @@ class Promise {
     const returnedPromise = new Promise(() => {});
 
     if (typeof onFulfilled === 'function') {
-      const wrappedOnFulfilled = value => {
+      const wrappedOnFulfilled = (value) => {
         try {
           const ret = onFulfilled(value);
           returnedPromise._resolve(ret);
@@ -84,13 +83,14 @@ class Promise {
           this._onFulfilled.push(wrappedOnFulfilled);
           break;
 
-        case 'fulfilled':
+        case 'fulfilled': {
           // If the promise is already fulfilled, call the callback directly.
           const value = this._value;
           _callAsynchronously(() => {
             wrappedOnFulfilled(value);
           });
           break;
+        }
 
         case 'rejected':
           // Do nothing.
@@ -99,7 +99,7 @@ class Promise {
     }
 
     if (typeof onRejected === 'function') {
-      const wrappedOnRejected = value => {
+      const wrappedOnRejected = (value) => {
         try {
           const ret = onRejected(value);
           returnedPromise._resolve(ret);
@@ -114,13 +114,14 @@ class Promise {
           this._onRejected.push(wrappedOnRejected);
           break;
 
-        case 'rejected':
+        case 'rejected': {
           // If the promise is already rejected, call the callback directly.
           const value = this._value;
           _callAsynchronously(() => {
             wrappedOnRejected(value);
           });
           break;
+        }
 
         case 'fulfilled':
           // Do nothing.
@@ -148,17 +149,17 @@ const rejectedPromise = new Promise((resolve, reject) => {
 
 rejectedPromise
   .then(
-    prevValue => { console.log('should never get called'); },
-    prevThrown => { return prevThrown.message; }
+    (prevValue) => { console.log('should never get called'); },
+    (prevThrown) => prevThrown.message,
   )
   .then(
-    prevValue => {
+    (prevValue) => {
       console.log('got', prevValue);
       throw new Error('final message');
     },
-    prevThrown => { console.log('should never be called'); }
+    (prevThrown) => { console.log('should never be called'); },
   )
   .then(
-    finalValue => { console.log('should never get called'); },
-    finalThrown => { console.log('got', finalThrown.message); }
+    (finalValue) => { console.log('should never get called'); },
+    (finalThrown) => { console.log('got', finalThrown.message); },
   );

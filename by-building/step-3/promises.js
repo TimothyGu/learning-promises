@@ -8,8 +8,8 @@ class Promise {
     this._onFulfilled = [];
     this._onRejected = [];
 
-    const resolve = value => this._resolve(value);
-    const reject = value => this._reject(value);
+    const resolve = (value) => this._resolve(value);
+    const reject = (value) => this._reject(value);
     initializer(resolve, reject);
   }
 

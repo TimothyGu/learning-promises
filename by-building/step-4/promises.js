@@ -15,8 +15,8 @@ class Promise {
     this._onFulfilled = [];
     this._onRejected = [];
 
-    const resolve = value => this._resolve(value);
-    const reject = value => this._reject(value);
+    const resolve = (value) => this._resolve(value);
+    const reject = (value) => this._reject(value);
     initializer(resolve, reject);
   }
 
@@ -57,13 +57,14 @@ class Promise {
           this._onFulfilled.push(onFulfilled);
           break;
 
-        case 'fulfilled':
+        case 'fulfilled': {
           // If the promise is already fulfilled, call the callback directly.
           const value = this._value;
           _callAsynchronously(() => {
             onFulfilled(value);
           });
           break;
+        }
 
         case 'rejected':
           // Do nothing.
@@ -78,13 +79,14 @@ class Promise {
           this._onRejected.push(onRejected);
           break;
 
-        case 'rejected':
+        case 'rejected': {
           // If the promise is already rejected, call the callback directly.
           const value = this._value;
           _callAsynchronously(() => {
             onRejected(value);
           });
           break;
+        }
 
         case 'fulfilled':
           // Do nothing.
@@ -106,10 +108,10 @@ const prom = new Promise((resolve, reject) => {
   }, 1000);
 });
 
-prom.then(value => {
+prom.then((value) => {
   console.log(new Date(), 'First onFulfilled:', value);
 });
 
-prom.then(value => {
+prom.then((value) => {
   console.log(new Date(), 'Second onFulfilled:', value);
 });
