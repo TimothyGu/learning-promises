@@ -8,7 +8,7 @@
   "private": true,
   "scripts": {
     "lint": "eslint . --ext .js",
-    "test": "yarn lint"
+    "test": "yarn lint && ./by-building/test.sh"
   },
   "devDependencies": {
     "eslint": "^7.32.0 || ^8.2.0",
