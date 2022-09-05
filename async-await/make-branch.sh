@@ -52,7 +52,12 @@ trap cleanup EXIT
 
 git branch -D async-await-diffs || true
 git switch --orphan async-await-diffs
-git commit --allow-empty -m 'Initial commit'
+cat <<EOF >.gitignore
+.DS_Store
+node_modules
+EOF
+git add .gitignore
+git commit -m 'Initial commit'
 
 tags=()
 

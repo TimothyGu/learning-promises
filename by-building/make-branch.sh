@@ -60,7 +60,12 @@ trap cleanup EXIT
 
 git branch -D by-building-diffs || true
 git switch --orphan by-building-diffs
-git commit --allow-empty -m 'Initial commit'
+cat <<EOF >.gitignore
+.DS_Store
+node_modules
+EOF
+git add .gitignore
+git commit -m 'Initial commit'
 
 tags=()
 
