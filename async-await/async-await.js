@@ -7,10 +7,18 @@
  */
 function asyncRun(gen) {
   return new Promise((resolve, reject) => {
-    function continueGenerator(value) {
+    /**
+     * @param {any} value
+     * @param {'normal' | 'throw'} normalOrThrow
+     */
+    function continueGenerator(value, normalOrThrow) {
       let yieldedResult;
       try {
-        yieldedResult = gen.next(value);
+        if (normalOrThrow === 'normal') {
+          yieldedResult = gen.next(value);
+        } else {
+          yieldedResult = gen.throw(value);
+        }
       } catch (ex) {
         reject(ex);
         return;
@@ -22,13 +30,13 @@ function asyncRun(gen) {
       }
 
       yieldedResult.value.then((resolvedValue) => {
-        continueGenerator(resolvedValue);
+        continueGenerator(resolvedValue, 'normal');
       }, (exception) => {
-        reject(exception);
+        continueGenerator(exception, 'throw');
       });
     }
 
-    continueGenerator(undefined);
+    continueGenerator(undefined, 'normal');
   });
 }
 
@@ -38,16 +46,23 @@ function* fnThatThrows() {
   throw new Error('oops');
 }
 
-function* awaitRejectedPromise() {
-  yield asyncRun(fnThatThrows());
+function* complexErrorHandling() {
+  try {
+    yield asyncRun(fnThatThrows());
+  } catch (ex) {
+    console.log(new Date(), 'caught', ex);
+  }
+
+  console.log(new Date(), 'continue running');
+
+  try {
+    yield Promise.reject(new Error('deliberate error'));
+  } finally {
+    console.log(new Date(), 'clean up');
+  }
 }
 
-asyncRun(fnThatThrows())
+asyncRun(complexErrorHandling())
   .catch((ex) => {
-    console.log(new Date(), 'got exception from fnThatThrows', ex);
-  });
-
-asyncRun(awaitRejectedPromise())
-  .catch((ex) => {
-    console.log(new Date(), 'got exception from awaitRejectedPromise', ex);
+    console.log(new Date(), 'got exception from complexErrorHandling', ex);
   });
