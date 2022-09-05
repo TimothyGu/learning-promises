@@ -8,7 +8,14 @@
 function asyncRun(gen) {
   return new Promise((resolve, reject) => {
     function continueGenerator(value) {
-      const yieldedResult = gen.next(value);
+      let yieldedResult;
+      try {
+        yieldedResult = gen.next(value);
+      } catch (ex) {
+        reject(ex);
+        return;
+      }
+
       if (yieldedResult.done) {
         resolve(yieldedResult.value);
         return;
@@ -16,6 +23,8 @@ function asyncRun(gen) {
 
       yieldedResult.value.then((resolvedValue) => {
         continueGenerator(resolvedValue);
+      }, (exception) => {
+        reject(exception);
       });
     }
 
@@ -25,28 +34,20 @@ function asyncRun(gen) {
 
 // Test code
 
-function* resolveAfter2Sec(value) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(value);
-    }, 2000);
-  });
+function* fnThatThrows() {
+  throw new Error('oops');
 }
 
-function* fn() {
-  console.log(new Date(), 'start fn');
-
-  const promise = asyncRun(resolveAfter2Sec(42));
-
-  console.log(new Date(), 'before yield');
-  const value = yield promise;
-  console.log(new Date(), 'got value', value);
-
-  return value * Math.PI;
+function* awaitRejectedPromise() {
+  yield asyncRun(fnThatThrows());
 }
 
-asyncRun(fn())
-  .then((returnedValue) => {
-    console.log(new Date(), 'got returned value', returnedValue);
+asyncRun(fnThatThrows())
+  .catch((ex) => {
+    console.log(new Date(), 'got exception from fnThatThrows', ex);
   });
-console.log(new Date(), 'after starting fn()');
+
+asyncRun(awaitRejectedPromise())
+  .catch((ex) => {
+    console.log(new Date(), 'got exception from awaitRejectedPromise', ex);
+  });
