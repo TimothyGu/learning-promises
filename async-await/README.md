@@ -1,4 +1,4 @@
-# Learning `async`–`await` by building
+# Building `async`–`await` from scratch
 
 In this guide, we will learn how the `async`–`await` keywords work in JavaScript – by building our versions of the keywords!
 

@@ -1,4 +1,4 @@
-# Learning JavaScript promises by building
+# Building the JavaScript `Promise` class
 
 This is a guide for implementing the JavaScript `Promise` class as a way of learning how it works under the hood. It's perhaps best for people who are familiar with the general shape of promise-based code and/or have used promises a bit in the past.
 
