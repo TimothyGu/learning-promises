@@ -4,6 +4,8 @@ In this guide, we will learn how the `async`–`await` keywords work in JavaScri
 
 Unfortunately, we cannot create new keywords in JavaScript, so we will have to settle for something a bit less nice-looking but still gets the point across. See below for an example of what we will complete today.
 
+> [Skip to complete implementation](step-6/async-await.js).
+
 <table id="actual-vs-us">
 <thead><tr><th>Actual <code>async</code>–<code>await</code></th><th>What we will implement</th></tr></thead>
 <tr><td><code>async function</code></td><td><code>function*</code></td></tr>
