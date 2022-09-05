@@ -2,7 +2,7 @@
  * Run a generator function as an async function.
  *
  * @template T
- * @param {Generator<unknown, T>} gen
+ * @param {Generator<unknown, T | PromiseLike<T>>} gen
  * @returns {Promise<T>}
  */
 function asyncRun(gen) {
@@ -42,29 +42,13 @@ function asyncRun(gen) {
 
 // Test code
 
-// TODO
-
-function* fnThatThrows() {
-  throw new Error('oops');
+async function asyncFunction() {
+  console.log('asyncFunction', await 42);
 }
 
-function* complexErrorHandling() {
-  try {
-    yield asyncRun(fnThatThrows());
-  } catch (ex) {
-    console.log(new Date(), 'caught', ex);
-  }
-
-  console.log(new Date(), 'continue running');
-
-  try {
-    yield Promise.reject(new Error('deliberate error'));
-  } finally {
-    console.log(new Date(), 'clean up');
-  }
+function* fauxAsyncFunction() {
+  console.log('fauxAsyncFunction', yield 42);
 }
 
-asyncRun(complexErrorHandling())
-  .catch((ex) => {
-    console.log(new Date(), 'got exception from complexErrorHandling', ex);
-  });
+asyncFunction();
+asyncRun(fauxAsyncFunction());

@@ -2,7 +2,7 @@
  * Run a generator function as an async function.
  *
  * @template T
- * @param {Generator<any, T>} gen
+ * @param {Generator<any, T | PromiseLike<T>>} gen
  * @returns {Promise<T>}
  */
 function asyncRun(gen) {
@@ -21,6 +21,17 @@ function asyncRun(gen) {
 }
 
 // Test code
+
+function* functionWithReturnValue() {
+  console.log(new Date(), 'starting functionWithReturnValue');
+  return 100;
+}
+
+asyncRun(functionWithReturnValue())
+  .then((value) => {
+    console.log(new Date(), 'functionWithReturnValue() returned', value);
+  });
+console.log(new Date(), 'after starting functionWithReturnValue()');
 
 function* printYieldedValue() {
   console.log(new Date(), 'starting printYieldedValue');

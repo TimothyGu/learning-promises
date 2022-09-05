@@ -8,8 +8,8 @@
   "private": true,
   "scripts": {
     "lint": "eslint . --ext .js",
-    "test-by-building": "./by-building/test.sh",
-    "test-async-await": "tsc -p async-await/jsconfig.json",
+    "test-by-building": "by-building/test.sh",
+    "test-async-await": "tsc -p async-await/jsconfig.json && async-await/test.sh",
     "test": "yarn lint && yarn test-by-building && yarn test-async-await"
   },
   "devDependencies": {
