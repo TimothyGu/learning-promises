@@ -8,11 +8,15 @@
   "private": true,
   "scripts": {
     "lint": "eslint . --ext .js",
-    "test": "yarn lint && ./by-building/test.sh"
+    "test-by-building": "./by-building/test.sh",
+    "test-async-await": "tsc -p async-await/jsconfig.json",
+    "test": "yarn lint && yarn test-by-building && yarn test-async-await"
   },
   "devDependencies": {
+    "@tsconfig/recommended": "^1.0.1",
     "eslint": "^7.32.0 || ^8.2.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.25.2"
+    "eslint-plugin-import": "^2.25.2",
+    "typescript": "^4.8.2"
   }
 }

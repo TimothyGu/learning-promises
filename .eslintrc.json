@@ -31,6 +31,7 @@
     "no-redeclare": ["error", { "builtinGlobals": false }],
     "no-shadow": "off",
     "no-underscore-dangle": "off",
-    "no-unused-vars": "off"
+    "no-unused-vars": "off",
+    "require-yield": "off"
   }
 }

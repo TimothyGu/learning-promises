@@ -1,5 +1,16 @@
+/**
+ * Run a generator function as an async function.
+ *
+ * @template T
+ * @param {Generator<unknown, T>} gen
+ * @returns {Promise<T>}
+ */
 function asyncRun(gen) {
   return new Promise((resolve, reject) => {
+    /**
+     * @param {any} value
+     * @param {'normal' | 'throw'} normalOrThrow
+     */
     function continueGenerator(value, normalOrThrow) {
       let yieldedResult;
       try {
@@ -18,7 +29,7 @@ function asyncRun(gen) {
         return;
       }
 
-      yieldedResult.value.then((resolvedValue) => {
+      Promise.resolve(yieldedResult.value).then((resolvedValue) => {
         continueGenerator(resolvedValue, 'normal');
       }, (exception) => {
         continueGenerator(exception, 'throw');
@@ -30,6 +41,8 @@ function asyncRun(gen) {
 }
 
 // Test code
+
+// TODO
 
 function* fnThatThrows() {
   throw new Error('oops');
